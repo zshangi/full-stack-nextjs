@@ -11,9 +11,12 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { createIssueShcema } from '@/app/validationShcemas';
 import { z } from 'zod';
 import ErrorMessage from '@/app/components/ErrorMessage';
+import Snipper from '@/app/components/Snipper';
 type IssueForm = z.infer<typeof createIssueShcema>
+
 const CreateNewIssue = () => {
   const [error, setError] = useState('')
+  const [isSubmitting,setSubmitting]=useState(false);
   const router = useRouter();
   const { register, control, handleSubmit, formState: { errors } } = useForm<IssueForm>({
     resolver: zodResolver(createIssueShcema)
@@ -31,10 +34,12 @@ const CreateNewIssue = () => {
         className=' space-y-3'
         onSubmit={handleSubmit(async (data) => {
           try {
+            setSubmitting(true)
             await axios.post('/api/issues', data);
             router.push('/issues')
 
           } catch (error) {
+            setSubmitting(false)
             setError('An expected error happend')
 
           }
@@ -58,7 +63,7 @@ const CreateNewIssue = () => {
           {errors.description?.message}
         </ErrorMessage>
 
-        <Button>Create New Issue</Button>
+        <Button disabled={isSubmitting}>Create New Issue{isSubmitting && <Snipper/>}</Button>
 
       </form>
     </div>
